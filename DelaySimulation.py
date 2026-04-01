@@ -143,6 +143,15 @@ def main():
         "signals": {"values": simdelay.reshape(-1, 1)},
     }
 
+    delay_data = np.column_stack((pack_send_time, simdelay))
+    np.savetxt(
+        "delay_data.csv",
+        delay_data,
+        delimiter=",",
+        header="send_time,simulated_delay",
+        comments="",
+    )
+
     # Keep variables available in interactive sessions
     _ = (MinDelay, MeanDelay, stdDealy, SimDelay)
 
