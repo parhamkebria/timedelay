@@ -51,13 +51,13 @@ def main():
     plt.figure(1)
     plt.subplot(2, 2, 1)
     plt.plot(nT, V)
-    plt.title("5000 packets with random send time and random delay time")
+    plt.title("5000 packets with random send time and random time delay")
     plt.axis([0, nT[-1], -2, 5])
     plt.plot(nT[999:1100], V[999:1100], "r")
 
     plt.subplot(2, 2, 2)
     plt.plot(nT[999:1100], V[999:1100], "r")
-    plt.title("zoom on the read segment/delay is the width of each pulse")
+    plt.title("zoom on the read segment - Width of each pulse indicates the delay")
     plt.axis([nT[999], nT[1099], -2, 5])
 
     plt.subplot(2, 2, 3)
