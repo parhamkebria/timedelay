@@ -75,3 +75,6 @@ run('MATLAB/DelaySimulation.m')
 
 - The simulation is stochastic (randomized send times and delays), so each run produces different traces and histograms.
 - The Python implementation mirrors the original script logic closely rather than optimizing for vectorized style.
+
+## License
+[LICENSE](LICENSE)
