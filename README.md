@@ -7,7 +7,7 @@ This repository contains a MATLAB delay simulation model and a Python port with 
 - `MATLAB/DelaySimulation.m`: original MATLAB simulation script
 - `MATLAB/CorrDelay.m`: MATLAB correlation-related helper script
 - `MATLAB/DelaySimulation.slx`: Simulink model
-- `DelaySimulation.py`: Python version of `DelaySimulation.m`
+- `Python/DelaySimulation.py`: Python version of `DelaySimulation.m`
 
 ## What the Simulation Does
 
