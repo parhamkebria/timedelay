@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm, expon
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.lines import Line2D
 
 def main():
 
@@ -48,24 +50,32 @@ def main():
     nT = np.array(nT)
     V = np.array(V)
 
-    plt.figure(1)
-    plt.subplot(2, 2, 1)
-    plt.plot(nT, V)
-    plt.title("5000 packets with random send time and random time delay")
-    plt.axis([0, nT[-1], -2, 5])
-    plt.plot(nT[999:1100], V[999:1100], "r")
+    fig1, (ax_signal, ax_dist) = plt.subplots(2, 1, num=1, clear=True)
+    ax_signal.plot(nT, V, color="tab:blue")
+    ax_signal.set_title("5000 packets with random send time and random time delay")
+    ax_signal.set_xlabel("Time (s)")
+    ax_signal.set_ylabel("Signal level")
+    ax_signal.set_xlim(0, nT[-1])
+    ax_signal.set_ylim(-1, 4)
 
-    plt.subplot(2, 2, 2)
-    plt.plot(nT[999:1100], V[999:1100], "r")
-    plt.title("zoom on the read segment - Width of each pulse indicates the delay")
-    plt.axis([nT[999], nT[1099], -2, 5])
+    zoom_x = nT[999:1100]
+    zoom_y = V[999:1100]
+    ax_signal.plot(zoom_x, zoom_y, color="red", linewidth=1.5)
 
-    plt.subplot(2, 2, 3)
-    plt.hist(simdelay, bins=100)
-    plt.title("Frequency distribution")
-    nelement, edges = np.histogram(simdelay, bins=100)
-    centres = 0.5 * (edges[:-1] + edges[1:])
-    _ = np.sum(nelement)
+    # Show the selected red segment as an inset zoom inside the main signal plot.
+    ax_zoom = ax_signal.inset_axes([0.62, 0.55, 0.35, 0.4])
+    ax_zoom.plot(zoom_x, zoom_y, color="red")
+    ax_zoom.set_xlabel("Time (s)", fontsize=8)
+    ax_zoom.set_ylabel("Signal", fontsize=8)
+    ax_zoom.set_xlim(nT[999], nT[1099])
+    ax_zoom.set_ylim(-1, 2)
+    ax_zoom.set_title("Zoomed segment", fontsize=9)
+    ax_signal.indicate_inset_zoom(ax_zoom, edgecolor="red")
+
+    ax_dist.hist(simdelay, bins=100, density=True, color="tab:blue", alpha=0.55)
+    ax_dist.set_title("Frequency distribution and distribution fit")
+    ax_dist.set_xlabel("Delay (s)")
+    ax_dist.set_ylabel("Density")
 
     if user_input in ("l", "L"):
         MinDelay = np.min(simdelay)
@@ -76,36 +86,30 @@ def main():
         MeanDelay = np.mean(simdelay - MinDelay)
         stdDealy = np.std(simdelay - MinDelay, ddof=1)
 
-    plt.subplot(2, 2, 4)
-    plt.plot(centres, nelement / 1)
+    measured_line = Line2D([], [], color="tab:blue", linewidth=2)
+    fit_line = Line2D([], [], color="red", linewidth=2)
+    stats_line = Line2D([], [], linestyle="None")
 
     if user_input in ("l", "L"):
         mu, sigma = norm.fit(simdelay)
-        x = np.linspace(0.005, 0.015, 100)
-        dx = 0.010 / 100
-        Pdf = norm.pdf(x, loc=mu, scale=sigma) * dx
-        Pdf = Pdf / np.sum(Pdf)
-        _ = np.sum(Pdf)
-        plt.plot(x, Pdf, linewidth=2)
-        plt.legend(
-            [
-                f"Measuredmean ={mu} std={sigma}",
-                f"Distribution Fit mean ={mu} std={sigma}",
-            ]
+        x = np.linspace(np.min(simdelay), np.max(simdelay), 400)
+        fit_pdf = norm.pdf(x, loc=mu, scale=sigma)
+        ax_dist.plot(x, fit_pdf, color="red", linewidth=2)
+        ax_dist.legend(
+            [measured_line, fit_line, stats_line],
+            ["Measured", "Distribution fit", f"mu={mu:.3f}, sigma={sigma:.3f}"],
         )
     else:
         data = simdelay - MinDelay
         mu = np.mean(data)
         sigma = np.std(data, ddof=1)
-        x = np.linspace(0, 0.020, 100)
-        dx = 0.020 / 100
-        Pdf = expon.pdf(x, scale=mu) * dx / 1.039
-        Pdf = Pdf / np.sum(Pdf)
-        _ = np.sum(Pdf)
-        plt.plot(MinDelay + x, Pdf, linewidth=2)
-        plt.legend([f"Measuredmean ={mu}", f"Distribution Fit mean ={mu}"])
-
-    plt.title("Distribution fit")
+        x = np.linspace(0, np.max(data), 400)
+        fit_pdf = expon.pdf(x, scale=mu)
+        ax_dist.plot(MinDelay + x, fit_pdf, color="red", linewidth=2)
+        ax_dist.legend(
+            [measured_line, fit_line, stats_line],
+            ["Measured", "Distribution fit", f"mu={mu:.3f}, sigma={sigma:.3f}"],
+        )
 
     plt.figure(2)
     plt.subplot(1, 3, 3)
@@ -128,16 +132,17 @@ def main():
         stdDealy = np.std(simdelay - MinDelay, ddof=1)
 
     plt.plot(centres_h, nelement_h / 1, "r", linewidth=2)
+    plt.xlabel("Delay (s)")
+    plt.ylabel("Count")
     plt.legend(
         [
             "Frequency distribution",
-            f"Distribution mean ={mu} std={sigma}",
+            f"Distribution mean ={mu:.3f} std={sigma:.3f}",
         ]
     )
 
     plt.subplot(1, 3, (1, 2))
 
-    # MATLAB struct-style outputs
     SimDelay = {
         "time": pack_send_time.reshape(-1, 1),
         "signals": {"values": simdelay.reshape(-1, 1)},
@@ -148,14 +153,21 @@ def main():
         "delay_data.csv",
         delay_data,
         delimiter=",",
+        fmt="%.3f",
         header="send_time,simulated_delay",
         comments="",
     )
 
+    for fig_num in plt.get_fignums():
+        fig = plt.figure(fig_num)
+        for ax in fig.axes:
+            ax.xaxis.set_major_formatter(FormatStrFormatter("%.3f"))
+            ax.yaxis.set_major_formatter(FormatStrFormatter("%.3f"))
+
     # Keep variables available in interactive sessions
     _ = (MinDelay, MeanDelay, stdDealy, SimDelay)
 
-    # plt.tight_layout()
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
