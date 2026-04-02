@@ -14,10 +14,10 @@ This repository contains a MATLAB delay simulation model and a Python port with 
 The simulation generates `Npack = 5000` packet send times over a simulation horizon (`Stime = 100` seconds), then applies one of two delay models selected at runtime:
 
 - **Long distance (`L`)**: Normal delay with
-  - mean = `1.52`
-  - std = `0.38`
+  - mean = `1.50`
+  - std = `0.50`
 - **Short distance (`S`)**: Shifted exponential delay with
-  - minimum offset = `0.002`
+  - minimum offset = `0.001`
   - scale (`lambda`) = `0.002`
 
 It then:
