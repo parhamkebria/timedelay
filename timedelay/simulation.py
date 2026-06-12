@@ -131,6 +131,8 @@ def plot_simulation(
     *,
     zoom_start: int = 999,
     zoom_stop: int = 1100,
+    show: bool = False,
+    save: str | Path | None = None,
 ) -> tuple[plt.Figure, tuple[plt.Axes, plt.Axes, plt.Axes]]:
     """Plot the pulse train and delay distributions for a simulation result."""
 
@@ -201,4 +203,8 @@ def plot_simulation(
     )
 
     plt.tight_layout()
+    if show:
+        plt.show()
+    if save is not None:
+        fig.savefig(save)
     return fig, (ax_signal, ax_dist, ax_dist2)
