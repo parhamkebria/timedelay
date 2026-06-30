@@ -4,7 +4,7 @@ import argparse
 
 import matplotlib.pyplot as plt
 
-from .simulation import plot_simulation, simulate
+from .simulation import plot, delay
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -21,14 +21,14 @@ def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    result = simulate(
+    result = delay(
         args.model,
         n_packets=args.npack,
         simulation_time=args.stime,
         seed=args.seed,
         output_csv=None if args.no_csv else "delay_data.csv",
     )
-    plot_simulation(result)
+    plot(result)
     plt.show()
     return 0
 

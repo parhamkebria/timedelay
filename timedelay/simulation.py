@@ -81,7 +81,7 @@ def _delay_stats(model: str, simulated_delay: np.ndarray) -> tuple[float, float,
     return minimum, mean_delay, std_delay
 
 
-def simulate(
+def delay(
     model: DelayMode,
     *,
     n_packets: int = 5000,
@@ -126,7 +126,7 @@ def simulate(
     )
 
 
-def plot_simulation(
+def plot(
     result: SimulationResult,
     *,
     zoom_start: int = 999,
